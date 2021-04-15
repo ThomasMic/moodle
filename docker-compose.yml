@@ -1,0 +1,46 @@
+version: '2'
+services:
+  mariadb:
+    image: bitnami/mariadb:10.5
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=bn_moodle
+      - MARIADB_DATABASE=bitnami_moodle
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    networks:
+     - moodle-network
+    volumes:
+      - 'mariadb_data:/bitnami/mariadb'
+  moodle:
+    image: thomasmic/moodle:latest
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#      args:
+#        - EXTRA_LOCALES=fr_FR.UTF-8 UTF-8, de_DE.UTF-8 UTF-8, it_IT.UTF-8 UTF-8, es_ES.UTF-8 UTF-8
+    ports:
+      - '80:8080'
+      - '443:8443'
+    environment:
+      - MOODLE_DATABASE_HOST=mariadb
+      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_USER=bn_moodle
+      - MOODLE_DATABASE_NAME=bitnami_moodle
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+     - moodle-network
+    volumes:
+      - 'moodle_data:/bitnami/moodle'
+      - 'moodledata_data:/bitnami/moodledata'
+    depends_on:
+      - mariadb
+networks:
+  moodle-network:
+    driver: 'bridge'
+volumes:
+  mariadb_data:
+  moodle_data:
+  moodledata_data:
+
